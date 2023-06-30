@@ -139,6 +139,7 @@ def generatePdf(
     #         )
     #     )
     # The document is set up with frames, each frame incorporates part of the page
+    # The first frame includes information about the total number of proposals
     frame1 = Frame(
         doc.leftMargin,
         doc.bottomMargin + (doc.height / 2),
@@ -151,53 +152,28 @@ def generatePdf(
         rightPadding=0 * mm,
         bottomPadding=0 * mm,
     )
-    #     frame2 = Frame(
-    #         doc.leftMargin + doc.width / 3 + 2 * mm,  # 2 + 3.5 * mm,
-    #         doc.bottomMargin + (doc.height / 2),
-    #         doc.width / 3,  # 2 - 3.5 * mm,
-    #         (doc.height / 2) - 18 * mm,
-    #         id="col2",
-    #         #    showBoundary=1,
-    #         leftPadding=0 * mm,
-    #         topPadding=5 * mm,
-    #         rightPadding=0 * mm,
-    #         bottomPadding=0 * mm,
-    #     )
-    # frame3 = Frame(
-    #     doc.leftMargin + (3.5 * mm) + doc.width * 0.61,
-    #     doc.bottomMargin + (doc.height / 2),
-    #     doc.width / 2.7,  # 2 - 3.5 * mm,
-    #     (doc.height / 2) - 18 * mm,
-    #     id="col3",
-    #     #        showBoundary=1,
-    #     leftPadding=0 * mm,
-    #     topPadding=5 * mm,
-    #     rightPadding=0 * mm,
-    #     bottomPadding=0 * mm,
-    # )
-    #     # top 3 frames contain the text
-    #     # Next frames the Figures
-    #     # Bar charts go first - divide the page in halves for them
-    # try this for 2 frames
-    frame4 = Frame(
-        doc.leftMargin,
-        doc.bottomMargin + (doc.height / 2),
-        doc.width / 2,  # 2 - 3.5 * mm,
-        (doc.height / 2) - 20 * mm,  # + 50 * mm,  # - 18 * mm,
+    # The second frame deals with the affiliates graph
+    frame2 = Frame(
+        doc.leftMargin,  # determines how left on the page it sits
+        doc.bottomMargin,  # determines how high on page it sits
+        doc.width / 2,  # determines how wide it is
+        (doc.height) - 20 * mm,  # determines how tall it is
         id="pic1",
-        #        showBoundary=1,
-        leftPadding=0 * mm,
+        # showBoundary=1, # Useful for testing where the box is
+        # all below just gives a little padding
+        leftPadding=3 * mm,
         topPadding=3 * mm,
         rightPadding=0 * mm,
         bottomPadding=0 * mm,
     )
-    frame5 = Frame(
-        doc.leftMargin + (doc.width / 2),
-        doc.bottomMargin + (doc.height / 2),
+    # The third frame deals with the graph related to which platform the suggestion would fit
+    frame3 = Frame(
+        doc.leftMargin,
+        doc.bottomMargin,  # + (doc.height / 2),
         doc.width / 2,  # 2 - 3.5 * mm,
-        (doc.height / 2) - 20 * mm,  # + 50 * mm,  # - 18 * mm,
+        (doc.height / 3),  # - 20 * mm,  # + 50 * mm,  # - 18 * mm,
         id="pic2",
-        #        showBoundary=1,
+        # showBoundary=1,
         leftPadding=0 * mm,
         topPadding=3 * mm,
         rightPadding=0 * mm,
@@ -217,7 +193,7 @@ def generatePdf(
         )
     template = PageTemplate(
         id="test",
-        frames=[frame1, frame4, frame5],
+        frames=[frame1, frame2, frame3],
         onPage=partial(header, content=header_content),
     )
     doc.addPageTemplates([template])
@@ -282,10 +258,75 @@ def generatePdf(
         Story.append(im_affiliation)
     # Next, plot related to which platform it fits into
     # The title for the question needs to be slightly different
+    # Story.append(CondPageBreak(10 * mm))
+    # "<font color='#4C979F' name=Arial-B><b></b></font>",
+    #             "<font color='#A7C947' name=Arial-B><b></b></font>",
+    if Survey_name == "A":
+        Story.append(
+            Paragraph(
+                "<font color='#4C979F' name=Arial-B><b>In which SciLifeLab Platform would the technology/instrument/service/technological capability fit?</b></font>",
+                styles["chart_heading"],
+            )
+        )
+        filepath_platform = "Plots/platform_fit_{}.svg".format(
+            (Survey_name),
+        )
+        isFile_platform = os.path.isfile(filepath_platform)
+        im_platform = svg2rlg(filepath_platform)
+        im_platform = Image(im_platform, width=70 * mm, height=55 * mm)
+        im_platform.hAlign = "CENTER"
+        Story.append(im_platform)
+    else:
+        Story.append(
+            Paragraph(
+                "<font color='#A7C947' name=Arial-B><b>In which SciLifeLab Platform would the facility fit?</b></font>",
+                styles["chart_heading"],
+            )
+        )
+        filepath_platform = "Plots/platform_fit_{}.svg".format(
+            (Survey_name),
+        )
+        isFile_platform = os.path.isfile(filepath_platform)
+        im_platform = svg2rlg(filepath_platform)
+        im_platform = Image(im_platform, width=70 * mm, height=55 * mm)
+        im_platform.hAlign = "CENTER"
+        Story.append(im_platform)
+
+    #
+    # if Survey_name == "A":
+    #     # Story.append(
+    #     #     Paragraph(
+    #     #         "<font color='#4C979F' name=Arial-B><b>In which SciLifeLab Platform would the technology/instrument/service/technological capability fit?</b></font>",
+    #     #         styles["chart_heading"],
+    #     #     )
+    #     # )
+    #     filepath_platform = "Plots/platform_{}.svg".format(
+    #         (Survey_name),
+    #     )
+    #     isFile_platform = os.path.isfile(filepath_platform)
+    #     im_platform = svg2rlg(filepath_platform)
+    #     im_platform = Image(im_platform, width=70 * mm, height=55 * mm)
+    #     im_platform.hAlign = "CENTER"
+    #     Story.append(im_platform)
+    # else:
+    #     Story.append(
+    #         Paragraph(
+
+    #             styles["chart_heading"],
+    #         )
+    #     )
+    #     filepath_platform = "Plots/platform_{}.svg".format(
+    #         (Survey_name),
+    #     )
+    #     isFile_platform = os.path.isfile(filepath_platform)
+    #     im_platform = svg2rlg(filepath_platform)
+    #     im_platform = Image(im_platform, width=70 * mm, height=55 * mm)
+    #     im_platform.hAlign = "CENTER"
+    #     Story.append(im_platform)
     # if Survey_name == "A":
     #     Story.append(
     #     Paragraph(
-    #         "<font color='#A7C947' name=Lato-B><b>In which SciLifeLab Platform would the<br>technology/instrument/service/technological capability fit?</b></font>",
+    #         "<font color='#A7C947' name=Lato-B><b></b></font>",
     #         styles["onepager_chart_heading"],
     #     )
     # ),
@@ -295,7 +336,7 @@ def generatePdf(
     # else:
     #     Story.append(
     #     Paragraph(
-    #         "<font color='#A7C947' name=Lato-B><b>In which SciLifeLab Platform would the<br>technology/instrument/service/technological capability fit?</b></font>",
+    #         "<font color='#A7C947' name=Lato-B><b></b></font>",
     #         styles["onepager_chart_heading"],
     #     )
     # ),
