@@ -163,7 +163,7 @@ def affiliations_bar(input, name, colour):
 
     fig.update_layout(
         plot_bgcolor="white",
-        font=dict(size=12),
+        font=dict(size=14),
         autosize=False,
         margin=dict(r=250, t=0, b=0, l=0),
         width=600,
@@ -238,7 +238,7 @@ def affiliations_bar(input, name, colour):
         showgrid=True,
         gridcolor="black",
         linecolor="black",
-        dtick=2,
+        dtick=1,
         range=[0, int(max(affiliations.Count * 1.15))],
     )
     # fig.show()
@@ -398,7 +398,7 @@ def platform_fit_bar(input, name, colour):
         showgrid=True,
         gridcolor="black",
         linecolor="black",
-        dtick=2,
+        dtick=1,
         range=[0, int(max(plat_fit.Count * 1.15))],
     )
     # fig.show()
@@ -529,7 +529,7 @@ def capability_fit_bar(input, name, colour):
         showgrid=True,
         gridcolor="black",
         linecolor="black",
-        dtick=2,
+        dtick=1,
         range=[0, int(max(capability_fit.Count * 1.15))],
     )
     # fig.show()
@@ -630,7 +630,7 @@ def potential_users_bar(input, name, colour):
         showgrid=True,
         gridcolor="black",
         linecolor="black",
-        dtick=2,
+        dtick=1,
         range=[0, int(max(pot_users.Count * 1.15))],
     )
     # fig.show()
