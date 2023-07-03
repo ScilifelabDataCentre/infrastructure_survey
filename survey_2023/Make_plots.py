@@ -163,11 +163,11 @@ def affiliations_bar(input, name, colour):
 
     fig.update_layout(
         plot_bgcolor="white",
-        font=dict(size=14),
-        autosize=False,
-        margin=dict(r=250, t=0, b=0, l=0),
-        width=600,
-        height=600,
+        font=dict(size=20),
+        # autosize=False,
+        # margin=dict(r=250, t=0, b=0, l=0),
+        width=1100,
+        height=700,
     )
 
     # modify y-axis
@@ -232,14 +232,31 @@ def affiliations_bar(input, name, colour):
         ],
     )
 
+    highest_x_value = max(affiliations.Count)
+
+    if highest_x_value < 10:
+        xaxis_tick = 1
+    if highest_x_value >= 10:
+        xaxis_tick = 2
+    if highest_x_value > 20:
+        xaxis_tick = 5
+    if highest_x_value > 50:
+        xaxis_tick = 10
+    if highest_x_value > 100:
+        xaxis_tick = 20
+    if highest_x_value > 150:
+        xaxis_tick = 40
+    if highest_x_value > 200:
+        xaxis_tick = 50
+
     # modify x-axis
     fig.update_xaxes(
         title=" ",
         showgrid=True,
         gridcolor="black",
         linecolor="black",
-        dtick=1,
-        range=[0, int(max(affiliations.Count * 1.15))],
+        dtick=xaxis_tick,
+        range=[0, int(max(affiliations.Count * 1.05))],
     )
     # fig.show()
 
@@ -335,11 +352,11 @@ def platform_fit_bar(input, name, colour):
 
     fig.update_layout(
         plot_bgcolor="white",
-        font=dict(size=12),
-        autosize=False,
-        margin=dict(r=250, t=0, b=0, l=0),
-        width=600,
-        height=600,
+        font=dict(size=20),
+        # autosize=False,
+        # margin=dict(r=250, t=0, b=0, l=0),
+        width=1100,
+        height=700,
     )
 
     # modify y-axis
@@ -392,13 +409,30 @@ def platform_fit_bar(input, name, colour):
         ],
     )
 
+    highest_x_value = max(plat_fit.Count)
+
+    if highest_x_value < 10:
+        xaxis_tick = 1
+    if highest_x_value >= 10:
+        xaxis_tick = 2
+    if highest_x_value > 20:
+        xaxis_tick = 5
+    if highest_x_value > 50:
+        xaxis_tick = 10
+    if highest_x_value > 100:
+        xaxis_tick = 20
+    if highest_x_value > 150:
+        xaxis_tick = 40
+    if highest_x_value > 200:
+        xaxis_tick = 50
+
     # modify x-axis
     fig.update_xaxes(
         title=" ",
         showgrid=True,
         gridcolor="black",
         linecolor="black",
-        dtick=1,
+        dtick=xaxis_tick,
         range=[0, int(max(plat_fit.Count * 1.15))],
     )
     # fig.show()
@@ -484,11 +518,11 @@ def capability_fit_bar(input, name, colour):
 
     fig.update_layout(
         plot_bgcolor="white",
-        font=dict(size=12),
-        autosize=False,
-        margin=dict(r=250, t=0, b=0, l=0),
-        width=600,
-        height=600,
+        font=dict(size=20),
+        # autosize=False,
+        # margin=dict(r=250, t=0, b=0, l=0),
+        width=1100,
+        height=700,
     )
 
     # modify y-axis
@@ -523,13 +557,30 @@ def capability_fit_bar(input, name, colour):
         ],
     )
 
+    highest_x_value = max(capability_fit.Count)
+
+    if highest_x_value < 10:
+        xaxis_tick = 1
+    if highest_x_value >= 10:
+        xaxis_tick = 2
+    if highest_x_value > 20:
+        xaxis_tick = 5
+    if highest_x_value > 50:
+        xaxis_tick = 10
+    if highest_x_value > 100:
+        xaxis_tick = 20
+    if highest_x_value > 150:
+        xaxis_tick = 40
+    if highest_x_value > 200:
+        xaxis_tick = 50
+
     # modify x-axis
     fig.update_xaxes(
         title=" ",
         showgrid=True,
         gridcolor="black",
         linecolor="black",
-        dtick=1,
+        dtick=xaxis_tick,
         range=[0, int(max(capability_fit.Count * 1.15))],
     )
     # fig.show()
@@ -591,11 +642,11 @@ def potential_users_bar(input, name, colour):
 
     fig.update_layout(
         plot_bgcolor="white",
-        font=dict(size=12),
-        autosize=False,
-        margin=dict(r=250, t=0, b=0, l=0),
-        width=600,
-        height=600,
+        font=dict(size=20),
+        # autosize=False,
+        # margin=dict(r=250, t=0, b=0, l=0),
+        width=1100,
+        height=700,
     )
 
     # modify y-axis
@@ -624,13 +675,30 @@ def potential_users_bar(input, name, colour):
         ],
     )
 
+    highest_x_value = max(pot_users.Count)
+
+    if highest_x_value < 10:
+        xaxis_tick = 1
+    if highest_x_value >= 10:
+        xaxis_tick = 2
+    if highest_x_value > 20:
+        xaxis_tick = 5
+    if highest_x_value > 50:
+        xaxis_tick = 10
+    if highest_x_value > 100:
+        xaxis_tick = 20
+    if highest_x_value > 150:
+        xaxis_tick = 40
+    if highest_x_value > 200:
+        xaxis_tick = 50
+
     # modify x-axis
     fig.update_xaxes(
         title=" ",
         showgrid=True,
         gridcolor="black",
         linecolor="black",
-        dtick=1,
+        dtick=xaxis_tick,
         range=[0, int(max(pot_users.Count * 1.15))],
     )
     # fig.show()

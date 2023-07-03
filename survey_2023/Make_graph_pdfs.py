@@ -99,7 +99,7 @@ def generatePdf(
             fontSize=10,
             color="#FF00AA",
             leading=16,
-            spaceAfter=4,
+            spaceAfter=0,
             spaceBefore=8,
         )
     )
@@ -152,7 +152,7 @@ def generatePdf(
         rightPadding=0 * mm,
         bottomPadding=0 * mm,
     )
-    # The second frame deals with the affiliates graph
+    # The second frame deals with the first column for graphs
     frame2 = Frame(
         doc.leftMargin,  # determines how left on the page it sits
         doc.bottomMargin,  # determines how high on page it sits
@@ -166,15 +166,15 @@ def generatePdf(
         rightPadding=0 * mm,
         bottomPadding=0 * mm,
     )
-    # The third frame deals with the graph related to which platform the suggestion would fit
+    # The third frame deals with the second column of graphs
     frame3 = Frame(
-        doc.leftMargin,
+        doc.leftMargin + (doc.width / 2),
         doc.bottomMargin,  # + (doc.height / 2),
         doc.width / 2,  # 2 - 3.5 * mm,
-        (doc.height / 3),  # - 20 * mm,  # + 50 * mm,  # - 18 * mm,
+        (doc.height) - 20 * mm,  # - 20 * mm,  # + 50 * mm,  # - 18 * mm,
         id="pic2",
         # showBoundary=1,
-        leftPadding=0 * mm,
+        leftPadding=3 * mm,
         topPadding=3 * mm,
         rightPadding=0 * mm,
         bottomPadding=0 * mm,
@@ -229,7 +229,7 @@ def generatePdf(
     if Survey_name == "A":
         Story.append(
             Paragraph(
-                "<font color='#4C979F' name=Arial-B><b>Affiliation of Proposer</b></font>",
+                "<font color='#4C979F' name=Arial-B><b>Affiliation of Proposer:</b></font>",
                 styles["chart_heading"],
             )
         )
@@ -238,13 +238,13 @@ def generatePdf(
         )
         isFile_affiliation = os.path.isfile(filepath_affiliation)
         im_affiliation = svg2rlg(filepath_affiliation)
-        im_affiliation = Image(im_affiliation, width=70 * mm, height=55 * mm)
-        im_affiliation.hAlign = "CENTER"
+        im_affiliation = Image(im_affiliation, width=80 * mm, height=60 * mm)
+        im_affiliation.hAlign = "LEFT"
         Story.append(im_affiliation)
     else:
         Story.append(
             Paragraph(
-                "<font color='#A7C947' name=Arial-B><b>Affiliation of Proposer</b></font>",
+                "<font color='#A7C947' name=Arial-B><b>Affiliation of Proposer:</b></font>",
                 styles["chart_heading"],
             )
         )
@@ -253,8 +253,8 @@ def generatePdf(
         )
         isFile_affiliation = os.path.isfile(filepath_affiliation)
         im_affiliation = svg2rlg(filepath_affiliation)
-        im_affiliation = Image(im_affiliation, width=70 * mm, height=55 * mm)
-        im_affiliation.hAlign = "CENTER"
+        im_affiliation = Image(im_affiliation, width=80 * mm, height=60 * mm)
+        im_affiliation.hAlign = "LEFT"
         Story.append(im_affiliation)
     # Next, plot related to which platform it fits into
     # The title for the question needs to be slightly different
@@ -273,8 +273,8 @@ def generatePdf(
         )
         isFile_platform = os.path.isfile(filepath_platform)
         im_platform = svg2rlg(filepath_platform)
-        im_platform = Image(im_platform, width=70 * mm, height=55 * mm)
-        im_platform.hAlign = "CENTER"
+        im_platform = Image(im_platform, width=80 * mm, height=60 * mm)
+        im_platform.hAlign = "LEFT"
         Story.append(im_platform)
     else:
         Story.append(
@@ -288,9 +288,56 @@ def generatePdf(
         )
         isFile_platform = os.path.isfile(filepath_platform)
         im_platform = svg2rlg(filepath_platform)
-        im_platform = Image(im_platform, width=70 * mm, height=55 * mm)
-        im_platform.hAlign = "CENTER"
+        im_platform = Image(im_platform, width=80 * mm, height=60 * mm)
+        im_platform.hAlign = "LEFT"
         Story.append(im_platform)
+    # Next, plot related to which capability/program could be strengthened
+    # The title for the question needs to be slightly different
+    if Survey_name == "A":
+        Story.append(
+            Paragraph(
+                "<font color='#4C979F' name=Arial-B><b>Which SciLifeLab capability/program could potentially be strengthened by the technology/instrument/service/technological capability?</b></font>",
+                styles["chart_heading"],
+            )
+        )
+        filepath_capability = "Plots/capability_fit_{}.svg".format(
+            (Survey_name),
+        )
+        isFile_capability = os.path.isfile(filepath_capability)
+        im_capability = svg2rlg(filepath_capability)
+        im_capability = Image(im_capability, width=80 * mm, height=60 * mm)
+        im_capability.hAlign = "LEFT"
+        Story.append(im_capability)
+    else:
+        Story.append(
+            Paragraph(
+                "<font color='#A7C947' name=Arial-B><b>Which SciLifeLab capability/program could potentially be strengthened by the facility?</b></font>",
+                styles["chart_heading"],
+            )
+        )
+        filepath_capability = "Plots/capability_fit_{}.svg".format(
+            (Survey_name),
+        )
+        isFile_capability = os.path.isfile(filepath_capability)
+        im_capability = svg2rlg(filepath_capability)
+        im_capability = Image(im_capability, width=80 * mm, height=60 * mm)
+        im_capability.hAlign = "LEFT"
+        Story.append(im_capability)
+        # now need last graph for survey type B (new frame needed) - Estimate number of potential users
+        # No further graphs for survey type A
+        Story.append(CondPageBreak(200 * mm))  # move to next frame
+        Story.append(
+            Paragraph(
+                "<font color='#A7C947' name=Arial-B><b>Estimated number of unique visitors annually if the facility became part of SciLifeLab's national infrastructure:</b></font>",
+                styles["chart_heading"],
+            )
+        )
+        filepath_potuse = "Plots/potential_users_B.svg"
+        isFile_potuse = os.path.isfile(filepath_potuse)
+        im_potuse = svg2rlg(filepath_potuse)
+        im_potuse = Image(im_potuse, width=80 * mm, height=60 * mm)
+        im_potuse.hAlign = "LEFT"
+        Story.append(im_potuse)
 
     #
     # if Survey_name == "A":
