@@ -183,12 +183,12 @@ def generatePdf(
     pd.options.display.max_colwidth = 600
     if Survey_name == "A":
         header_content = Paragraph(
-            "<font color='#4C979F' name=Arial-B><b>Technology Needs Inventory - Summary of Proposals</b></font>",
+            "<font color='#4C979F' name=Arial-B><b>Proposals on New Technologies – a summary</b></font>",
             styles["onepager_title"],
         )
     else:
         header_content = Paragraph(
-            "<font color='#A7C947' name=Arial-B><b>Suggestions for New Facilities - Summary of Proposals</b></font>",
+            "<font color='#A7C947' name=Arial-B><b>Proposals on New Infrastructure Units – a summary</b></font>",
             styles["onepager_title"],
         )
     template = PageTemplate(
@@ -279,7 +279,7 @@ def generatePdf(
     else:
         Story.append(
             Paragraph(
-                "<font color='#A7C947' name=Arial-B><b>In which SciLifeLab Platform would the facility fit?</b></font>",
+                "<font color='#A7C947' name=Arial-B><b>In which SciLifeLab Platform would the facility/unit fit?</b></font>",
                 styles["chart_heading"],
             )
         )
@@ -311,7 +311,7 @@ def generatePdf(
     else:
         Story.append(
             Paragraph(
-                "<font color='#A7C947' name=Arial-B><b>Which SciLifeLab capability/program could potentially be strengthened by the facility?</b></font>",
+                "<font color='#A7C947' name=Arial-B><b>Which SciLifeLab capability/program could potentially be strengthened by the facility/unit?</b></font>",
                 styles["chart_heading"],
             )
         )
@@ -328,7 +328,7 @@ def generatePdf(
         Story.append(CondPageBreak(200 * mm))  # move to next frame
         Story.append(
             Paragraph(
-                "<font color='#A7C947' name=Arial-B><b>Estimated number of unique visitors annually if the facility became part of SciLifeLab's national infrastructure:</b></font>",
+                "<font color='#A7C947' name=Arial-B><b>Estimated number of unique visitors annually if the facility/unit became part of SciLifeLab's national infrastructure:</b></font>",
                 styles["chart_heading"],
             )
         )
