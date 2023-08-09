@@ -11,20 +11,33 @@ import numpy as np
 # First portion of script (before splitting for survey type is general survey prep)
 
 survey_data_raw = pd.read_excel(
-    "Data/test_data.xlsx",
-    sheet_name="Sheet 1 - 230614100957_scilifel",
-    header=0,
+    "Data/Test-run.xlsx",
+    sheet_name="Sheet 1 - 230807072119_scilifel",
+    header=1,
     engine="openpyxl",
     keep_default_na=False,
 )
 
+# Healthcare affiliation has been put in as 'Health care', going to standardise here for the whole set
+
+survey_data_raw = survey_data_raw.replace("Health care", "Healthcare", regex=True)
+
 # make affiliations types into a unified column
 # (prep for affiliations work)
 
-survey_data_raw["Affiliation"] = np.where(
-    (survey_data_raw["Affiliation"] == "University"),
-    survey_data_raw["University"],
-    survey_data_raw["Affiliation"],
+# Need to replace substrings as there can be multiple affiliations
+survey_data_raw["Affiliation"] = [
+    x.replace("University", str(y))
+    for x, y in survey_data_raw[["Affiliation", "University"]].to_numpy()
+]
+
+### THIS PART WOULD NEED CHANGING EACH TIME THE TECH SURVEY WAS DONE (unless survey structure is changed)
+### in 2023, 'Other' under universities allows users to type in the university (this is not true for 'Other Swedish University')
+### Want them to actually show up as 'Other university' (this is only expected to be relatively rare)
+### In this case, we will rename the individual instances of this (e.g. with University of Copenhagen)
+
+survey_data_raw["Affiliation"] = survey_data_raw["Affiliation"].replace(
+    "Copenhagen University", "Other University", regex=True
 )
 
 # Rename columns needed to work with
@@ -83,24 +96,6 @@ countB = surveyB.shape[0]
 
 Aff_data = pd.DataFrame(
     {
-        "University": [
-            "Chalmers University of Technology",
-            "Karolinska Institutet",
-            "KTH, Royal Institute of Technology",
-            "Linköping University",
-            "Lund University",
-            "Stockholm University",
-            "Swedish University of Agricultural Sciences",
-            "Umeå University",
-            "University of Gothenburg",
-            "Uppsala University",
-            "Örebro University",
-            "Other Swedish University",
-            "",
-            "",
-            "",
-            "Other University",
-        ],
         "Affiliation": [
             "Chalmers University of Technology",
             "Karolinska Institutet",
@@ -119,30 +114,56 @@ Aff_data = pd.DataFrame(
             "Industry",
             "Other University",
         ],
+        "Count": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+        ],
     }
 )
 
 # get counts for affiliations of those that aubmitted survey type A
 
-affiliationsA = surveyA[["Affiliation", "University"]]
-
-affA_comb = pd.concat([Aff_data, affiliationsA])
-
-affiliationsA = (
-    affA_comb.groupby(["University", "Affiliation"]).size().reset_index(name="Count")
+Aff_count_A = pd.DataFrame(
+    surveyA.Affiliation.str.extractall("({})".format("|".join(Aff_data["Affiliation"])))
+    .iloc[:, 0]
+    .str.get_dummies()
+    .sum()
+    .reset_index()
+    .rename(columns={"index": "Affiliation", 0: "Count"})
 )
-affiliationsA["Count"] = affiliationsA["Count"] - 1
 
-# get counts for affiliations of those that aubmitted survey type B
+affA_comb = pd.concat([Aff_data, Aff_count_A])
 
-affiliationsB = surveyB[["Affiliation", "University"]]
+affiliationsA = affA_comb.groupby(["Affiliation"]).sum().reset_index()
 
-affB_comb = pd.concat([Aff_data, affiliationsB])
+# get counts for affiliations of those that submitted survey type B
 
-affiliationsB = (
-    affB_comb.groupby(["University", "Affiliation"]).size().reset_index(name="Count")
+Aff_count_B = pd.DataFrame(
+    surveyB.Affiliation.str.extractall("({})".format("|".join(Aff_data["Affiliation"])))
+    .iloc[:, 0]
+    .str.get_dummies()
+    .sum()
+    .reset_index()
+    .rename(columns={"index": "Affiliation", 0: "Count"})
 )
-affiliationsB["Count"] = affiliationsB["Count"] - 1
+
+affB_comb = pd.concat([Aff_data, Aff_count_B])
+
+affiliationsB = affB_comb.groupby(["Affiliation"]).sum().reset_index()
 
 # now make affiliations plot
 
@@ -163,7 +184,7 @@ def affiliations_bar(input, name, colour):
 
     fig.update_layout(
         plot_bgcolor="white",
-        font=dict(size=20),
+        font=dict(size=23),
         # autosize=False,
         # margin=dict(r=250, t=0, b=0, l=0),
         width=1100,
@@ -256,7 +277,7 @@ def affiliations_bar(input, name, colour):
         gridcolor="black",
         linecolor="black",
         dtick=xaxis_tick,
-        range=[0, int(max(affiliations.Count * 1.05))],
+        range=[0, int(max(affiliations.Count + 1.05))],
     )
     # fig.show()
 
@@ -271,6 +292,13 @@ affiliations_bar(affiliationsA, "A", "#4C979F")
 affiliations_bar(affiliationsB, "B", "#A7C947")
 
 ### In which Platform would it fit? - for both survey types, although slight difference in exactly what's recorded for each type
+
+# Noticed that for 'A', the response for 'none' is 'none of the current platforms'. and for B it's 'none of the existing platforms'
+# Need to standardise this
+
+surveyA = surveyA.replace(
+    "None of the current platforms", "None of the existing platforms", regex=True
+)
 
 # We need to use the Platform_fits column, but since can have multiple units listed in that column, it's necessary to do the counts as substrings
 
@@ -352,7 +380,7 @@ def platform_fit_bar(input, name, colour):
 
     fig.update_layout(
         plot_bgcolor="white",
-        font=dict(size=20),
+        font=dict(size=23),
         # autosize=False,
         # margin=dict(r=250, t=0, b=0, l=0),
         width=1100,
@@ -367,44 +395,44 @@ def platform_fit_bar(input, name, colour):
         ticktext=[
             "<b>I do not know</b>",
             "<b>None of the existing platforms</b>",
+            "<b>Drug Discovery and Development</b>",
+            "<b>Chemical Biology and Genome Engineering</b>",
+            "<b>Integrated Structural Biology</b>",
+            "<b>Cellular and Molecular Imaging</b>",
             "<b>Spatial Biology</b>",
             "<b>Metabolomics</b>",
-            "<b>Integrated Structural Biology</b>",
-            "<b>Genomics</b>",
-            "<b>Drug Discovery and Development</b>",
             "<b>Clinical Proteomics and Immunology</b>",
             "<b>Clinical Genomics</b>",
-            "<b>Chemical Biology and Genome Engineering</b>",
-            "<b>Cellular and Molecular Imaging</b>",
+            "<b>Genomics</b>",
             "<b>Bioinformatics</b>",
         ],
         tickvals=[
             "I do not know",
             "None of the existing platforms",
+            "Drug Discovery and Development",
+            "Chemical Biology and Genome Engineering",
+            "Integrated Structural Biology",
+            "Cellular and Molecular Imaging",
             "Spatial Biology",
             "Metabolomics",
-            "Integrated Structural Biology",
-            "Genomics",
-            "Drug Discovery and Development",
             "Clinical Proteomics and Immunology",
             "Clinical Genomics",
-            "Chemical Biology and Genome Engineering",
-            "Cellular and Molecular Imaging",
+            "Genomics",
             "Bioinformatics",
         ],
         categoryorder="array",
         categoryarray=[
             "I do not know",
             "None of the existing platforms",
+            "Drug Discovery and Development",
+            "Chemical Biology and Genome Engineering",
+            "Integrated Structural Biology",
+            "Cellular and Molecular Imaging",
             "Spatial Biology",
             "Metabolomics",
-            "Integrated Structural Biology",
-            "Genomics",
-            "Drug Discovery and Development",
             "Clinical Proteomics and Immunology",
             "Clinical Genomics",
-            "Chemical Biology and Genome Engineering",
-            "Cellular and Molecular Imaging",
+            "Genomics",
             "Bioinformatics",
         ],
     )
@@ -518,7 +546,7 @@ def capability_fit_bar(input, name, colour):
 
     fig.update_layout(
         plot_bgcolor="white",
-        font=dict(size=20),
+        font=dict(size=23),
         # autosize=False,
         # margin=dict(r=250, t=0, b=0, l=0),
         width=1100,
@@ -642,7 +670,7 @@ def potential_users_bar(input, name, colour):
 
     fig.update_layout(
         plot_bgcolor="white",
-        font=dict(size=20),
+        font=dict(size=23),
         # autosize=False,
         # margin=dict(r=250, t=0, b=0, l=0),
         width=1100,
