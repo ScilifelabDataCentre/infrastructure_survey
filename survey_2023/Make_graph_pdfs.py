@@ -328,7 +328,7 @@ def generatePdf(
         Story.append(CondPageBreak(200 * mm))  # move to next frame
         Story.append(
             Paragraph(
-                "<font color='#A7C947' name=Arial-B><b>Estimated number of unique visitors annually if the facility/unit became part of SciLifeLab's national infrastructure:</b></font>",
+                "<font color='#A7C947' name=Arial-B><b>Estimated number of unique users annually if the facility/unit became part of SciLifeLab's national infrastructure:</b></font>",
                 styles["chart_heading"],
             )
         )
@@ -396,5 +396,5 @@ def generatePdf(
 
 
 # Note: not setting the year universally, because it might be that you're reporting for the current year, or the one before
-generatePdf("A")
+# generatePdf("A")
 generatePdf("B")

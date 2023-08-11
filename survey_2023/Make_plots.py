@@ -11,8 +11,8 @@ import numpy as np
 # First portion of script (before splitting for survey type is general survey prep)
 
 survey_data_raw = pd.read_excel(
-    "Data/Test-run.xlsx",
-    sheet_name="Sheet 1 - 230807072119_scilifel",
+    "Data/Tech Survey Proposals 2023 Final_QC.xlsx",
+    sheet_name="Sheet 1 - 230811071655_scilifel",
     header=1,
     engine="openpyxl",
     keep_default_na=False,
@@ -38,6 +38,10 @@ survey_data_raw["Affiliation"] = [
 
 survey_data_raw["Affiliation"] = survey_data_raw["Affiliation"].replace(
     "Copenhagen University", "Other University", regex=True
+)
+
+survey_data_raw["Affiliation"] = survey_data_raw["Affiliation"].replace(
+    "University of Glasgow", "Other University", regex=True
 )
 
 # Rename columns needed to work with
@@ -87,6 +91,8 @@ surveyB = survey_data_raw[
 
 countA = surveyA.shape[0]
 countB = surveyB.shape[0]
+# print(countA)
+# print(countB)
 
 # Below here is all plots and associated data preparation
 
@@ -149,7 +155,7 @@ Aff_count_A = pd.DataFrame(
 affA_comb = pd.concat([Aff_data, Aff_count_A])
 
 affiliationsA = affA_comb.groupby(["Affiliation"]).sum().reset_index()
-
+# print(affiliationsA)
 # get counts for affiliations of those that submitted survey type B
 
 Aff_count_B = pd.DataFrame(
@@ -164,7 +170,7 @@ Aff_count_B = pd.DataFrame(
 affB_comb = pd.concat([Aff_data, Aff_count_B])
 
 affiliationsB = affB_comb.groupby(["Affiliation"]).sum().reset_index()
-
+# print(affiliationsB)
 # now make affiliations plot
 
 
@@ -237,8 +243,8 @@ def affiliations_bar(input, name, colour):
             "Industry",
             "Healthcare",
             "Governmental organization",
-            "Other Swedish University",
             "Other University",
+            "Other Swedish University",
             "Örebro University",
             "Uppsala University",
             "University of Gothenburg",
@@ -348,7 +354,7 @@ Plat_fit_A = pd.DataFrame(
 plata_comb = pd.concat([Plat_data, Plat_fit_A])
 
 plata = plata_comb.groupby(["Platform"]).sum().reset_index()
-
+# print(plata)
 Plat_fit_B = (
     surveyB.Platform_fits.str.extractall("({})".format("|".join(Plat_data["Platform"])))
     .iloc[:, 0]
@@ -361,6 +367,7 @@ Plat_fit_B = (
 platb_comb = pd.concat([Plat_data, Plat_fit_B])
 
 platb = platb_comb.groupby(["Platform"]).sum().reset_index()
+# print(platb)
 
 
 # plot
@@ -512,7 +519,7 @@ Capability_fit_A = pd.DataFrame(
 capa_comb = pd.concat([Capability_data, Capability_fit_A])
 
 capa = capa_comb.groupby(["Capability"]).sum().reset_index()
-
+# print(capa)
 Capability_fit_B = pd.DataFrame(
     surveyB.Capability_fits.str.extractall(
         "({})".format("|".join(Capability_data["Capability"]))
@@ -527,6 +534,7 @@ Capability_fit_B = pd.DataFrame(
 capb_comb = pd.concat([Capability_data, Capability_fit_B])
 
 capb = capb_comb.groupby(["Capability"]).sum().reset_index()
+# print(capb)
 
 
 # Plot
@@ -651,6 +659,7 @@ potential_users_counts = (
 pot_users_comb = pd.concat([Potential_users_data, potential_users_counts])
 
 pot_users = pot_users_comb.groupby(["potential_users"]).sum().reset_index()
+# print(pot_users)
 
 
 # plot
