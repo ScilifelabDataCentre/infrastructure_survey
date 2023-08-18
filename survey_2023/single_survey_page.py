@@ -5,8 +5,8 @@ import os
 from functools import partial
 from pathlib import Path
 
-from openpyxl import load_workbook
-from openpyxl.utils.escape import unescape
+from openpyxl import load_workbook, Workbook
+from openpyxl.utils.escape import escape, unescape
 
 from reportlab.platypus import BaseDocTemplate, Frame, Image, PageTemplate, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -29,8 +29,9 @@ styles.add(
     ParagraphStyle(
         name="ntitle",
         fontName="Arial-B",
-        fontSize=15,
-        textColor="#000000"
+        fontSize=14,
+        textColor="#000000",
+        leading=16
     )
 )
 # User name
@@ -190,12 +191,13 @@ class report_gen(object):
     # This funtion creates the page layout by creating main body frame
     # and exisiting header function (which defines header layout)
     def __make_page_layout(self):
+        header_height = self.__get_header_height()
         col1 = Frame(
             id="col1",
             x1=self.doc.leftMargin,
             y1=self.doc.bottomMargin + 6*mm,
             width=self.doc.width/2 - 3*mm,
-            height=self.doc.height - 26 * mm,
+            height=self.doc.height - header_height,
             leftPadding=0 * mm,
             topPadding=2 * mm,
             rightPadding=0 * mm,
@@ -207,7 +209,7 @@ class report_gen(object):
             x1=self.doc.leftMargin + self.doc.width/2 + 3*mm,
             y1=self.doc.bottomMargin + 6*mm,
             width=self.doc.width/2 - 3*mm,
-            height=self.doc.height - 26 * mm,
+            height=self.doc.height - header_height,
             leftPadding=0 * mm,
             topPadding=2 * mm,
             rightPadding=0 * mm,
@@ -226,14 +228,14 @@ class report_gen(object):
         # Write title of the document, add a tag for multi page
         if page_num == 2:
             content[0].frags[0].text = content[0].frags[0].text + " (cont.)"
-        w0, h0 = content[0].wrap(doc.width, doc.topMargin)
+        w0, h0 = content[0].wrap(doc.width * 0.7, doc.topMargin)
         content[0].drawOn(canvas, doc.leftMargin, doc.height + doc.topMargin - h0)
         # Write the name of the user
-        w1, h1 = content[1].wrap(doc.width, doc.topMargin + h0)
-        h1 = h1 + h0 + 3*mm
+        w1, h1 = content[1].wrap(doc.width * 0.7, doc.topMargin + h0)
+        h1 = h1 + h0 + 2*mm
         content[1].drawOn(canvas, doc.leftMargin, doc.height + doc.topMargin - h1)
         # Write the email address
-        w2, h2 = content[2].wrap(doc.width, doc.topMargin + h1)
+        w2, h2 = content[2].wrap(doc.width * 0.7, doc.topMargin + h1)
         h2 = h2 + h1 + 1*mm
         content[2].drawOn(canvas, doc.leftMargin, doc.height + doc.topMargin - h2)
         # Write the platform title
@@ -242,7 +244,7 @@ class report_gen(object):
         # Write notification if proposal multiple platform
         if len(content) == 5:
             w4, h4 = content[4].wrap(doc.width, doc.topMargin + h0)
-            h4 = h4 + h0 + 5*mm
+            h4 = h4 + h0 + 3*mm
             content[4].drawOn(canvas, doc.leftMargin, doc.height + doc.topMargin - h4)
         # Draw a horizantal divider line
         hl = h2 + 2*mm
@@ -276,28 +278,36 @@ class report_gen(object):
     def __call_header_and_footer(self, canvas, doc):
         self.__header(canvas, doc, self.__header_content)
         self.__footer(canvas, doc, self.__footer_content)
+    
+    # Function to calculate header height
+    def __get_header_height(self):
+        w0, h0 = self.__header_content[0].wrap(self.doc.width * 0.7, self.doc.topMargin)
+        w1, h1 = self.__header_content[1].wrap(self.doc.width * 0.7, self.doc.topMargin + h0)
+        h1 = h1 + h0 + 2*mm
+        w2, h2 = self.__header_content[2].wrap(self.doc.width * 0.7, self.doc.topMargin + h1)
+        return h2 + h1 + 8*mm
 
 # Helper method for aesthetic
 def platform_outside_scilifelab(platform):
-    return platform in ["None of the existing platforms", "I do not know", "zz_outside_platform"]
+    return platform in ["None of the existing platforms", "None of the current platforms", "I do not know", "No platform suggested"]
 
 def get_platform_header_text(platform, plt_text):
     # If its not an exisitng platform, put in special criteria
     if platform_outside_scilifelab(platform):
         if plt_text == "technology":
-            text = "Proposal on new {} with no<br/>suggested platform affiliation".format(plt_text)
+            text = "Proposals on Technologies with<br/>no specific platform suggested"
         else:
-            text = "Proposal on new {} with<br/>no suggested platform affiliation".format(plt_text)
+            text = "Proposals on Infrastructure Units with<br/>no specific platform suggested"
     elif platform == "Clinical Proteomics and Immunology":
         text = "Clinical Proteomics<br/>and Immunology"
-    # elif platform == "Cellular and Molecular Imaging":
-    #     text = "Cellular and Molecular<br/>Imaging"
-    # elif platform == "Integrated Structural Biology":
-    #     text = "Integrated Structural<br/>Biology"
+    elif platform == "Cellular and Molecular Imaging":
+        text = "Cellular and Molecular<br/>Imaging"
+    elif platform == "Integrated Structural Biology":
+        text = "Integrated Structural<br/>Biology"
     elif platform == "Chemical Biology and Genome Engineering":
         text = "Chemical Biology and<br/>Genome Engineering"
-    elif platform == "Drug Discovery and<br/>Development":
-        text = "Drug Discovery and Development"
+    elif platform == "Drug Discovery and Development":
+        text = "Drug Discovery and<br/>Development"
     else:
         text = platform
     return text
@@ -318,7 +328,7 @@ suggestions_info = {
     "B": {
         "alt_text": "facility",
         "plt_text": "Scilifelab unit",
-        "footer_text": "Proposal on new SciLifeLab Facility",
+        "footer_text": "Proposal on new SciLifeLab Unit",
         "style": "facility",
         "style_plt": "facility-plt",
         "style_non_plt": "facility-non-plt",
@@ -328,43 +338,59 @@ suggestions_info = {
     }
 }
 
+platforms_order = ["Bioinformatics", "Genomics", "Clinical Genomics", "Clinical Proteomics and Immunology",
+                   "Metabolomics", "Spatial Biology", "Cellular and Molecular Imaging", "Integrated Structural Biology",
+                   "Chemical Biology and Genome Engineering", "Drug Discovery and Development", "No platform suggested"]
+
 # Read the survey file
-wb = load_workbook('demo_survey.xlsx')
+wb = load_workbook('Survey.xlsx')
 ws = wb.active
 rpn = 0
-nlen = len(str(ws.max_row - 1))
+ntotal = 0
+
+# excel file for metadata
+owb = Workbook()
+ows = owb.active
+for c, h in enumerate(["Report Num.", "Reg Num.", "Title", "Platform", "Category"], 1):
+    cell = ows.cell(row=1, column=c)
+    cell.value = h
 
 # Read and sort the data to process in right order
 process_order = {}
 reg_num = {"A": 1, "B": 1}
-for n, srow in enumerate(ws.iter_rows(min_row=2), 2):
+for n, srow in enumerate(ws.iter_rows(min_row=3), 3):
     row = [unescape(str(cell.value) or "") for cell in srow]
     sid = row[9][0].upper()
     platforms = [p.strip() for p in row[suggestions_info[sid]["platform_index"]].split(", ")]
-    platforms_uniq = list(set(["zz_outside_platform" if platform_outside_scilifelab(p) else p for p in platforms]))
+    platforms_uniq = list(set(["No platform suggested" if platform_outside_scilifelab(p) else p for p in platforms]))
     for p in platforms_uniq:
         if p not in process_order:
             process_order[p] = {"A": [], "B": []}
+        s_title = row[suggestions_info[sid]["title_index"]].strip()
         process_order[p][sid].append({
-            "title": row[suggestions_info[sid]["title_index"]].strip().capitalize(),
+            "title": s_title[0].upper() + s_title[1:],
             "reg_no": sid + str(reg_num[sid]),
             "row_index": n,
             "multi_platform": len(platforms_uniq) > 1
         })
+        ntotal += 1
     reg_num[sid] += 1
 
-for p in sorted(process_order.keys()):
+for plt_i, p in enumerate(platforms_order, 1):
+    if p not in process_order:
+        continue
     for i in ["A", "B"]:
-        for s in sorted(process_order[p][i], key=lambda d: d['title']):
+        for s in sorted(process_order[p][i], key=lambda d: d['title'].lower()):
             row = [unescape(str(cell.value) or "") for cell in ws[s["row_index"]]]
             rpn += 1
-            rpid = str(rpn).zfill(nlen)
+            rpid = str(rpn).zfill(len(str(ntotal)))
             snm = suggestions_info[i]["style"]
             snm_plt = suggestions_info[i]["style_plt"]
             snm_non_plt = suggestions_info[i]["style_non_plt"]
+            platforms = [p.strip() for p in row[suggestions_info[i]["platform_index"]].split(", ")]
             # Filename and path
-            pdf_name = "{}_{}.pdf".format(s["title"].replace(" ", "_"), s["reg_no"])
-            fname = os.path.join("Pdfs", p, pdf_name)
+            pdf_name = "{}_{}_{}.pdf".format(rpid, s["title"].replace(" ", "_"), s["reg_no"])
+            fname = os.path.join("Pdfs", "{}_{}".format(str(plt_i), p), pdf_name)
             # Instantiate report gen object
             rp = report_gen(fname)
             # Affiliation text
@@ -375,14 +401,14 @@ for p in sorted(process_order.keys()):
             else:
                 aff_text = "{}, {}".format(row[4], row[7])
             # Add content to header section
-            rp.add_to_header(s["title"], styles["ntitle"])
+            rp.add_to_header("{}: {}".format(rpid, s["title"]), styles["ntitle"])
             rp.add_to_header("{} {}, {}, {}".format(row[0], row[1], row[2], aff_text), styles["name"])
             rp.add_to_header(row[3], styles["email"])
             rp.add_to_header(get_platform_header_text(p, suggestions_info[i]["plt_text"]), styles[snm_plt])
             # Add disclaimer if proposal belongs to two platform
             if s["multi_platform"]:
                 rp.add_to_header(
-                        "**Please note that this proposal is also<br/>found under other platforms",
+                        "**Please note that this proposal is<br/>also found under other platforms",
                         styles["multi-plt"]
                     )
             # Add content to Footer
@@ -459,3 +485,8 @@ for p in sorted(process_order.keys()):
                 rp.add_to_content("Additional comment:", styles[snm])
                 rp.add_to_content(row[30].replace("\n", "<br/>"), styles["normal"])
             rp.make_pdf()
+            # following is to generate meta data
+            for c, v in enumerate([rpid, s["reg_no"], s["title"], p, "Technology" if i == "A" else "Unit"], 1):
+                cell = ows.cell(row=rpn+1, column=c)
+                cell.value = v
+owb.save("Survey_meta.xlsx")
